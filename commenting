@@ -1,0 +1,23 @@
+.syntax unified             // 使用统一语法风格
+    .cpu    cortex-m4           // 使用Cortex-M4处理器
+    .thumb                      // 使用Thumb指令集
+
+    .global __stack_end         // 定义栈顶指针
+    .global __stack_start       // 定义栈底指针
+    .global Reset_Handler       // 定义复位中断服务函数
+
+    .section .isr_vector        // 中断向量表
+    .word   __stack_end         // 栈顶指针
+    .word   Reset_Handler       // 复位中断服务函数
+    // 其他中断服务函数入口地址
+
+Reset_Handler:                  // 复位中断服务函数
+    // 初始化堆栈指针
+    ldr     sp, =__stack_end
+    // 初始化其他寄存器
+    bl      SystemInit
+    bl      __libc_init_array
+    bl      main                // 跳转到主程序入口
+    b       .                   // 如果main函数返回，则进入死循环
+
+    .size   Reset_Handler, .    // 设置Reset_Handler符号的大小
